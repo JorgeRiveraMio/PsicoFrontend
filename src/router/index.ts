@@ -25,6 +25,14 @@ const router = createRouter({
         { path: 'psicologos', name: 'psicologos', component: PsicologosView },
       ],
     },
+    {
+      path: '/reset-password',
+      component: () => import('@/views/ResetPasswordView.vue'),
+    },
+    {
+      path: '/forgot-password',
+      component: () => import('@/views/ForgotPasswordView.vue'),
+    },
   ],
 })
 

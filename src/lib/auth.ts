@@ -150,3 +150,74 @@ export const registerPsicologo = async (
     }
   }
 }
+
+/**
+ * CAMBIAR CONTRASEÑA
+ */
+export const changePassword = async (newPassword: string): Promise<IsOkResponse> => {
+  try {
+    const { error } = await supabase.auth.updateUser({
+      password: newPassword,
+    })
+
+    if (error) {
+      return {
+        isOk: null,
+        message: error.message,
+        listMessage: [],
+      }
+    }
+
+    return {
+      isOk: true,
+      message: 'Contraseña actualizada correctamente',
+      listMessage: [],
+    }
+  } catch (err: unknown) {
+    const message = err instanceof Error ? err.message : 'Error desconocido'
+
+    return {
+      isOk: null,
+      message,
+      listMessage: [],
+    }
+  }
+}
+
+
+/**
+ * ENVIAR EMAIL DE RECUPERACIÓN
+ */
+export const sendResetEmail = async (
+  email: string,
+): Promise<IsOkResponse> => {
+  try {
+    const redirectUrl = window.location.origin + '/reset-password'
+
+    const { error } = await supabase.auth.resetPasswordForEmail(email, {
+      redirectTo: redirectUrl,
+    })
+
+    if (error) {
+      return {
+        isOk: null,
+        message: error.message,
+        listMessage: [],
+      }
+    }
+
+    return {
+      isOk: true,
+      message: 'Correo enviado. Revisa tu bandeja 📩',
+      listMessage: [],
+    }
+  } catch (err: unknown) {
+    const message = err instanceof Error ? err.message : 'Error desconocido'
+
+    return {
+      isOk: null,
+      message,
+      listMessage: [],
+    }
+  }
+}
