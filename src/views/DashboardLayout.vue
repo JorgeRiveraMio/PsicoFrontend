@@ -22,7 +22,7 @@
 
       <!-- Nav generado desde nav.config.ts -->
       <nav class="sidebar-nav">
-        <template v-for="group in navGroups" :key="group.groupLabel">
+        <template v-for="group in filteredNavGroups" :key="group.groupLabel">
           <p class="sidebar-nav__group-label">{{ group.groupLabel }}</p>
 
           <RouterLink
@@ -49,12 +49,27 @@
           </div>
           <div class="sidebar-footer__info">
             <span class="sidebar-footer__name">{{ userName }}</span>
-            <span class="sidebar-footer__role">Administrador</span>
+            <span class="sidebar-footer__role">{{ roleName }}</span>
           </div>
         </div>
-        <button class="sidebar-footer__logout" @click="handleLogout" title="Cerrar sesión">
-          <i class="bi bi-box-arrow-right"></i>
-        </button>
+        <div class="sidebar-footer__menu">
+          <button class="sidebar-footer__logout" @click="toggleMenu" title="Opciones">
+            <i class="bi bi-gear"></i>
+          </button>
+
+          <!-- DROPDOWN -->
+          <div v-if="menuOpen" class="sidebar-footer__dropdown">
+            <button class="dropdown-item" @click="goChangePassword">
+              <i class="bi bi-key me-2"></i>
+              Cambiar contraseña
+            </button>
+
+            <button class="dropdown-item text-danger" @click="handleLogout">
+              <i class="bi bi-box-arrow-right me-2"></i>
+              Cerrar sesión
+            </button>
+          </div>
+        </div>
       </div>
     </aside>
 
@@ -117,8 +132,19 @@ const mobileOpen = ref(false)
 // ── Usuario desde localStorage ─────────────────────────────
 const stored = localStorage.getItem('user')
 const userData = stored ? JSON.parse(stored) : null
+const userRole = userData?.idt_rol
 const userName = computed(() => userData?.email?.split('@')[0] ?? 'Usuario')
 const userInitials = computed(() => userName.value.slice(0, 2).toUpperCase())
+const menuOpen = ref(false)
+
+const toggleMenu = () => {
+  menuOpen.value = !menuOpen.value
+}
+
+const goChangePassword = () => {
+  menuOpen.value = false
+  router.push('/reset-password') // o /change-password si luego haces otra vista
+}
 
 // ── Título activo desde nav.config ─────────────────────────
 const currentLabel = computed(() => {
@@ -128,7 +154,25 @@ const currentLabel = computed(() => {
   }
   return 'Dashboard'
 })
+const filteredNavGroups = computed(() => {
+  return navGroups
+    .map((group) => ({
+      ...group,
+      items: group.items.filter((item) => (item.roles ? item.roles.includes(userRole) : true)),
+    }))
+    .filter((group) => group.items.length > 0)
+})
 
+const roleName = computed(() => {
+  switch (userRole) {
+    case 1:
+      return 'Administrador'
+    case 2:
+      return 'Psicólogo'
+    default:
+      return 'Usuario'
+  }
+})
 // ── Logout ──────────────────────────────────────────────────
 async function handleLogout() {
   await logout()
@@ -473,5 +517,46 @@ async function handleLogout() {
   .app-content {
     padding: 20px 16px;
   }
+}
+.sidebar-footer__menu {
+  position: relative;
+}
+
+/* Dropdown */
+.sidebar-footer__dropdown {
+  position: absolute;
+  bottom: 45px;
+  right: 0;
+  background: #1e293b;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 10px;
+  padding: 6px;
+  min-width: 180px;
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.25);
+  z-index: 10;
+}
+
+/* Items */
+.dropdown-item {
+  width: 100%;
+  background: none;
+  border: none;
+  color: #e2e8f0;
+  font-size: 0.8rem;
+  padding: 8px 10px;
+  border-radius: 8px;
+  text-align: left;
+  display: flex;
+  align-items: center;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+
+.dropdown-item:hover {
+  background: rgba(255, 255, 255, 0.06);
+}
+
+.dropdown-item.text-danger {
+  color: #f87171;
 }
 </style>

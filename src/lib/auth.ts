@@ -7,40 +7,51 @@ import type { Psicologo } from '@/types/entity/Psicologo'
  * LOGIN
  */
 
-export const login = async (
-  email: string,
-  password: string,
-): Promise<IsOkResponseGeneric<User | null>> => {
+export const login = async (email: string, password: string) => {
   try {
     const { data, error } = await supabase.auth.signInWithPassword({
       email,
       password,
     })
 
-    if (error) {
+    if (error || !data.user) {
       return {
         isOk: null,
-        message: error.message,
-        listMessage: [],
+        message: error?.message || 'Error al iniciar sesión',
       }
+    }
+
+    const { data: usuarioDB, error: dbError } = await supabase
+      .from('tbm_usuario')
+      .select('*')
+      .eq('idu_usuario', data.user.id)
+      .single()
+
+    if (dbError) {
+      return {
+        isOk: null,
+        message: dbError.message,
+      }
+    }
+
+    // 🔥 UNIR auth + BD
+    const userFinal = {
+      ...data.user,
+      ...usuarioDB,
     }
 
     return {
       isOk: true,
       message: 'Login exitoso',
-      modelResponse: data.user,
-      listMessage: [],
+      modelResponse: userFinal,
     }
   } catch (err: unknown) {
-    const message = err instanceof Error ? err.message : 'Error desconocido'
     return {
       isOk: null,
-      message: message,
-      listMessage: [],
+      message: err instanceof Error ? err.message : 'Error desconocido',
     }
   }
 }
-
 /**
  * LOGOUT
  */
@@ -184,13 +195,10 @@ export const changePassword = async (newPassword: string): Promise<IsOkResponse>
   }
 }
 
-
 /**
  * ENVIAR EMAIL DE RECUPERACIÓN
  */
-export const sendResetEmail = async (
-  email: string,
-): Promise<IsOkResponse> => {
+export const sendResetEmail = async (email: string): Promise<IsOkResponse> => {
   try {
     const redirectUrl = window.location.origin + '/reset-password'
 
