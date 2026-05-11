@@ -66,12 +66,26 @@
         <!-- ACCIONES -->
         <Column header="Acciones">
           <template #body="slotProps">
-            <button
-              class="btn btn-sm btn-outline-primary"
-              @click="emit('editar', slotProps.data.original)"
-            >
-              <i class="bi bi-pencil"></i>
-            </button>
+            <div class="btn-group btn-group-sm">
+              <button
+                class="btn btn-outline-primary"
+                title="Editar"
+                @click="emit('editar', slotProps.data.original)"
+              >
+                <i class="bi bi-pencil"></i>
+              </button>
+              <button
+                class="btn"
+                :class="slotProps.data.est_activo ? 'btn-outline-danger' : 'btn-outline-success'"
+                :title="slotProps.data.est_activo ? 'Desactivar' : 'Activar'"
+                @click="emit('cambiarEstado', slotProps.data.original)"
+              >
+                <i
+                  class="bi"
+                  :class="slotProps.data.est_activo ? 'bi-slash-circle' : 'bi-check-circle'"
+                ></i>
+              </button>
+            </div>
           </template>
         </Column>
       </DataTable>
@@ -96,6 +110,7 @@ const props = defineProps<{
 // emits
 const emit = defineEmits<{
   (e: 'editar', item: Psicologo): void
+  (e: 'cambiarEstado', item: Psicologo): void
 }>()
 
 const filters = ref({

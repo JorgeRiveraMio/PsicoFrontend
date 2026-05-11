@@ -35,6 +35,15 @@ export const login = async (email: string, password: string) => {
     }
 
     // 🔥 UNIR auth + BD
+    if (usuarioDB.est_activo === false) {
+      await supabase.auth.signOut()
+
+      return {
+        isOk: null,
+        message: 'Usuario inactivo. Contacte al administrador.',
+      }
+    }
+
     const userFinal = {
       ...data.user,
       ...usuarioDB,

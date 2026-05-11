@@ -24,6 +24,7 @@
       :loading="loading"
       @editar="editar"
       @detalle="verDetalle"
+      @cambiar-estado="cambiarEstadoPaciente"
     />
 
     <PacienteModal
@@ -81,7 +82,7 @@ import PacientesTable from '../../components/Pacientes/PacientesTable.vue'
 import type { Diagnostico } from '../../types/entity/Diagnosticos'
 import type { Paciente } from '../../types/entity/Paciente'
 import type { Psicologo } from '../../types/entity/Psicologo'
-import { insert, select, update } from '../../lib/db'
+import { changeActiveStatus, insert, select, update } from '../../lib/db'
 
 const PACIENTES_TABLE = 'tbm_paciente'
 const PSICOLOGOS_TABLE = 'tbm_usuario'
@@ -209,6 +210,28 @@ const guardar = async (data: Paciente) => {
 
   toast.success(resp.message)
   cerrarModal()
+  await cargarDatos()
+}
+
+const cambiarEstadoPaciente = async (paciente: Paciente) => {
+  if (!paciente.idm_paciente) return
+
+  const nuevoEstado = !paciente.est_activo
+  const accion = nuevoEstado ? 'activado' : 'desactivado'
+  saving.value = true
+
+  const resp = await changeActiveStatus<Paciente>(PACIENTES_TABLE, nuevoEstado, {
+    idm_paciente: paciente.idm_paciente,
+  })
+
+  saving.value = false
+
+  if (!resp.isOk) {
+    toast.error(resp.message || 'No se pudo cambiar el estado del paciente.')
+    return
+  }
+
+  toast.success(`Paciente ${accion} correctamente.`)
   await cargarDatos()
 }
 

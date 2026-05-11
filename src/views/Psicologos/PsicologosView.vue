@@ -9,7 +9,11 @@
     </button>
 
     <!-- TABLA -->
-    <PsicologosTable :items="psicologos" @editar="editar" />
+    <PsicologosTable
+      :items="psicologos"
+      @editar="editar"
+      @cambiar-estado="cambiarEstadoPsicologo"
+    />
 
     <!-- MODAL -->
     <PsicologoModal
@@ -23,13 +27,17 @@
 
 <script setup lang="ts">
 import { ref, onMounted } from 'vue'
+import { useToast } from 'vue-toastification'
 import type { Psicologo } from '../../types/entity/Psicologo'
 
 import PsicologosTable from '../../components/Psicologos/PsicologosTable.vue'
 import PsicologoModal from '../../components/Psicologos/PsicologoModal.vue'
 
 import { registerPsicologo } from '@/lib/auth'
-import { select, update } from '../../lib/db'
+import { changeActiveStatus, select, update } from '../../lib/db'
+
+const PSICOLOGOS_TABLE = 'tbm_usuario'
+const toast = useToast()
 
 // ------------------------
 // STATE
@@ -37,6 +45,7 @@ import { select, update } from '../../lib/db'
 const psicologos = ref<Psicologo[]>([])
 const showModal = ref<boolean>(false)
 const psicologoSeleccionado = ref<Psicologo | null>(null)
+const saving = ref(false)
 
 // ------------------------
 // UI ACTIONS
@@ -59,12 +68,12 @@ const editar = (item: Psicologo) => {
 // DATA
 // ------------------------
 const cargarPsicologos = async () => {
-  const resp = await select<Psicologo>('tbm_usuario')
+  const resp = await select<Psicologo>(PSICOLOGOS_TABLE)
 
   if (resp.isOk && resp.modelResponse) {
     psicologos.value = resp.modelResponse
   } else {
-    console.error(resp.message)
+    toast.error(resp.message || 'No se pudieron cargar los psicologos.')
   }
 }
 
@@ -74,20 +83,48 @@ const cargarPsicologos = async () => {
 const guardar = async (data: Psicologo) => {
   if (psicologoSeleccionado.value?.idu_usuario) {
     // UPDATE
-    await update<Psicologo>('tbm_usuario', data, {
+    const resp = await update<Psicologo>(PSICOLOGOS_TABLE, data, {
       idu_usuario: psicologoSeleccionado.value.idu_usuario,
     })
+
+    if (!resp.isOk) {
+      toast.error(resp.message || 'No se pudo actualizar el psicologo.')
+      return
+    }
   } else {
     // REGISTRO
     const resp = await registerPsicologo(data, '12345678')
 
     if (!resp.isOk) {
-      console.error(resp.message)
+      toast.error(resp.message)
       return
     }
   }
 
+  toast.success('Psicologo guardado correctamente.')
   cerrarModal()
+  await cargarPsicologos()
+}
+
+const cambiarEstadoPsicologo = async (psicologo: Psicologo) => {
+  if (!psicologo.idu_usuario) return
+
+  const nuevoEstado = !psicologo.est_activo
+  const accion = nuevoEstado ? 'activado' : 'desactivado'
+  saving.value = true
+
+  const resp = await changeActiveStatus<Psicologo>(PSICOLOGOS_TABLE, nuevoEstado, {
+    idu_usuario: psicologo.idu_usuario,
+  })
+
+  saving.value = false
+
+  if (!resp.isOk) {
+    toast.error(resp.message || 'No se pudo cambiar el estado del psicologo.')
+    return
+  }
+
+  toast.success(`Psicologo ${accion} correctamente.`)
   await cargarPsicologos()
 }
 

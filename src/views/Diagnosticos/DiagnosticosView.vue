@@ -15,7 +15,7 @@
       :items="diagnosticos"
       :loading="loading"
       @editar="editar"
-      @desactivar="pedirDesactivar"
+      @cambiarEstado="cambiarEstado"
     />
 
     <DiagnosticoModal
@@ -149,25 +149,30 @@ const guardar = async (data: Diagnostico) => {
   await cargarDiagnosticos()
 }
 
-const desactivar = async () => {
-  if (!diagnosticoADesactivar.value?.idt_diagnostico) return
-
-  saving.value = true
+const cambiarEstado = async (diagnostico: Diagnostico) => {
+  const nuevoEstado = !diagnostico.est_activo
   const resp = await update<Diagnostico>(
     DIAGNOSTICOS_TABLE,
-    { est_activo: false },
-    { idt_diagnostico: diagnosticoADesactivar.value.idt_diagnostico },
+    { est_activo: nuevoEstado },
+    { idt_diagnostico: diagnostico.idt_diagnostico },
   )
-  saving.value = false
 
   if (!resp.isOk) {
-    toast.error(resp.message || 'No se pudo desactivar el diagnostico.')
+    toast.error(resp.message || 'No se pudo cambiar el estado del diagnóstico.')
     return
   }
 
-  toast.success('Diagnostico desactivado correctamente.')
-  diagnosticoADesactivar.value = null
+  toast.success(
+    nuevoEstado ? 'Diagnóstico activado correctamente.' : 'Diagnóstico desactivado correctamente.',
+  )
+
   await cargarDiagnosticos()
+}
+
+const desactivar = async () => {
+  if (!diagnosticoADesactivar.value) return
+  await cambiarEstado(diagnosticoADesactivar.value)
+  diagnosticoADesactivar.value = null
 }
 
 onMounted(cargarDiagnosticos)

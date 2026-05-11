@@ -86,12 +86,15 @@
                 <i class="bi bi-pencil"></i>
               </button>
               <button
-                class="btn btn-outline-danger"
-                title="Desactivar"
-                :disabled="!slotProps.data.est_activo"
-                @click="emit('desactivar', slotProps.data)"
+                :class="
+                  slotProps.data.est_activo ? 'btn btn-outline-danger' : 'btn btn-outline-success'
+                "
+                :title="slotProps.data.est_activo ? 'Desactivar' : 'Activar'"
+                @click="emit('cambiarEstado', slotProps.data)"
               >
-                <i class="bi bi-slash-circle"></i>
+                <i
+                  :class="slotProps.data.est_activo ? 'bi bi-slash-circle' : 'bi bi-check-circle'"
+                ></i>
               </button>
             </div>
           </template>
@@ -115,7 +118,7 @@ const props = defineProps<{
 
 const emit = defineEmits<{
   (e: 'editar', item: Diagnostico): void
-  (e: 'desactivar', item: Diagnostico): void
+  (e: 'cambiarEstado', item: Diagnostico): void
 }>()
 
 const filters = ref({

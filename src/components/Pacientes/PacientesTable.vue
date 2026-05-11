@@ -121,6 +121,17 @@
               >
                 <i class="bi bi-pencil"></i>
               </button>
+              <button
+                class="btn"
+                :class="slotProps.data.est_activo ? 'btn-outline-danger' : 'btn-outline-success'"
+                :title="slotProps.data.est_activo ? 'Desactivar' : 'Activar'"
+                @click="emit('cambiarEstado', slotProps.data.original)"
+              >
+                <i
+                  class="bi"
+                  :class="slotProps.data.est_activo ? 'bi-slash-circle' : 'bi-check-circle'"
+                ></i>
+              </button>
             </div>
           </template>
         </Column>
@@ -148,6 +159,7 @@ const props = defineProps<{
 const emit = defineEmits<{
   (e: 'editar', item: Paciente): void
   (e: 'detalle', item: Paciente): void
+  (e: 'cambiarEstado', item: Paciente): void
 }>()
 
 const filters = ref({
