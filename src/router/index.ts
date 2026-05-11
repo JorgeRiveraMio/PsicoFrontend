@@ -3,6 +3,7 @@ import LoginView from '../views/LoginView.vue'
 import DashboardLayout from '@/views/DashboardLayout.vue'
 import PacientesView from '@/views/Pacientes/PacientesView.vue'
 import PsicologosView from '@/views/Psicologos/PsicologosView.vue'
+import DiagnosticosView from '@/views/Diagnosticos/DiagnosticosView.vue'
 
 const router = createRouter({
   history: createWebHistory(),
@@ -23,6 +24,7 @@ const router = createRouter({
       children: [
         { path: 'pacientes', name: 'pacientes', component: PacientesView },
         { path: 'psicologos', name: 'psicologos', component: PsicologosView },
+        { path: 'diagnosticos', name: 'diagnosticos', component: DiagnosticosView },
       ],
     },
     {

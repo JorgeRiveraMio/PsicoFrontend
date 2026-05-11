@@ -128,7 +128,7 @@ export const registerPsicologo = async (
       .insert({
         idu_usuario: userData.user.id,
         des_email: data.des_email,
-        des_nombr: data.des_nombr,
+        des_nombres: data.des_nombres,
         ape_pater: data.ape_pater,
         idt_rol: 2,
         ape_mater: data.ape_mater,

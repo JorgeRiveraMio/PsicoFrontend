@@ -3,7 +3,8 @@ export interface Paciente {
 
   cod_paciente?: string | null
 
-  des_nombre: string
+  des_nombre?: string | null
+  des_nombres: string
   des_ape_paterno: string
   des_ape_materno: string
   num_telefono?: string | null
@@ -20,4 +21,7 @@ export interface Paciente {
 
   fec_registro?: string
   fec_modificacion?: string
+
+  diagnostico_nombre?: string
+  psicologa_nombre?: string
 }

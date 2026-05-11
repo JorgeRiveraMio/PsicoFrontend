@@ -54,8 +54,13 @@
                 <!-- OPCIONES -->
                 <div class="d-flex justify-content-between align-items-center mb-4">
                   <div class="form-check">
-                    <input class="form-check-input" type="checkbox" id="remember" />
-                    <label class="form-check-label small">Recordarme</label>
+                    <input
+                      class="form-check-input"
+                      type="checkbox"
+                      id="rememberMe"
+                      v-model="rememberMe"
+                    />
+                    <label class="form-check-label small" for="rememberMe">Recuérdame</label>
                   </div>
 
                   <router-link
@@ -84,7 +89,7 @@
   </section>
 </template>
 <script setup lang="ts">
-import { ref } from 'vue'
+import { ref, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
 import { login } from '@/lib/auth'
 import { useToast } from 'vue-toastification'
@@ -93,7 +98,16 @@ const email = ref('')
 const password = ref('')
 const router = useRouter()
 const toast = useToast()
+const rememberMe = ref(false)
+//Recuperar inicio de sesión guardado
+onMounted(() => {
+  const savedEmail = localStorage.getItem('rememberEmail')
 
+  if (savedEmail) {
+    email.value = savedEmail
+    rememberMe.value = true
+  }
+})
 const isValidEmail = (value: string): boolean => {
   const regex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
   return regex.test(value)
@@ -122,6 +136,11 @@ const loginUser = async () => {
   }
 
   toast.success('Login exitoso ')
+  if (rememberMe.value) {
+    localStorage.setItem('rememberEmail', email.value)
+  } else {
+    localStorage.removeItem('rememberEmail')
+  }
 
   if (res.modelResponse) {
     localStorage.setItem('user', JSON.stringify(res.modelResponse))

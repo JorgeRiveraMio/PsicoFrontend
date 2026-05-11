@@ -3,7 +3,7 @@
     <!-- NOMBRE -->
     <div class="mb-2">
       <label class="form-label">Nombres</label>
-      <input v-model="form.des_nombr" class="form-control" required />
+      <input v-model="form.des_nombres" class="form-control" required />
     </div>
 
     <!-- APELLIDO PATERNO -->
@@ -56,7 +56,7 @@ const emit = defineEmits<{
 }>()
 
 const form = reactive<Psicologo>({
-  des_nombr: '',
+  des_nombres: '',
   ape_pater: '',
   ape_mater: '',
   des_email: '',
@@ -69,7 +69,7 @@ watch(
     if (val) {
       Object.assign(form, val)
     } else {
-      form.des_nombr = ''
+      form.des_nombres = ''
       form.ape_pater = ''
       form.ape_mater = ''
       form.des_email = ''

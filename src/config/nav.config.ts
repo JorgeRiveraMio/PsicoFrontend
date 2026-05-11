@@ -29,6 +29,13 @@ export const navGroups: NavGroup[] = [
         description: 'Gestiona el equipo de psicólogos',
         roles: [1],
       },
+      {
+        label: 'Diagnosticos',
+        to: '/dashboard/diagnosticos',
+        icon: 'bi-clipboard2-pulse-fill',
+        description: 'Gestiona el catalogo de diagnosticos',
+        roles: [1, 2],
+      },
     ],
   },
 ]

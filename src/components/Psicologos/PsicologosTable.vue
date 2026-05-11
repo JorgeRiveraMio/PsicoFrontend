@@ -105,7 +105,7 @@ const filters = ref({
 const rows = computed(() =>
   props.items.map((p) => ({
     ...p,
-    nombre: `${p.des_nombr ?? ''} ${p.ape_pater ?? ''} ${p.ape_mater ?? ''}`.trim(),
+    nombre: `${p.des_nombres ?? ''} ${p.ape_pater ?? ''} ${p.ape_mater ?? ''}`.trim(),
     original: p,
   })),
 )
